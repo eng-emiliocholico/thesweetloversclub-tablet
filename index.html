@@ -9,8 +9,37 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="Sweet Lovers Club" name="apple-mobile-web-app-title"/>
+<script>
+    /* Modo ligero: pensado para tablets/celulares con 1–2 GB de RAM.
+       Puede forzarse con ?lite=1 y desactivarse con ?lite=0. */
+    (function () {
+        const params = new URLSearchParams(location.search);
+        const forced = params.get('lite');
+        const memory = Number(navigator.deviceMemory || 0);
+        const cores = Number(navigator.hardwareConcurrency || 0);
+        const mobileLike = /Android|Mobile|Tablet/i.test(navigator.userAgent || '');
+        const smallScreen = Math.max(screen.width || 0, screen.height || 0) <= 1400;
+
+        let lite = forced === '1';
+        if (forced !== '0' && !lite) {
+            lite = (memory > 0 && memory <= 2) ||
+                   (memory === 0 && mobileLike && smallScreen && cores > 0 && cores <= 2);
+        }
+
+        window.SWEETCLUB_LITE_MODE = lite;
+        document.documentElement.classList.toggle('low-memory', lite);
+
+        // En equipos normales mantenemos las tipografías de Google.
+        // En modo ligero usamos fuentes del sistema para ahorrar red/RAM.
+        if (!lite) {
+            const fonts = document.createElement('link');
+            fonts.rel = 'stylesheet';
+            fonts.href = 'https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Manrope:wght@400;500;700&display=swap';
+            document.head.appendChild(fonts);
+        }
+    })();
+</script>
 <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Manrope:wght@400;500;700&display=swap');
 
         /* ============================================
            TOKENS — Paleta "candy speakeasy"
@@ -1083,6 +1112,63 @@
             .chile-particle { display: none !important; }
         }
 
+
+        /* ============================================
+           MODO LIGERO — tablets/celulares de poca RAM
+           ============================================ */
+        html.low-memory { scroll-behavior: auto; }
+        html.low-memory body,
+        html.low-memory button {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        html.low-memory .intro-title,
+        html.low-memory .speech-bubble,
+        html.low-memory header h1,
+        html.low-memory .item-info h3 {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        html.low-memory .intro-title em,
+        html.low-memory header h1 em {
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+        html.low-memory *,
+        html.low-memory *::before,
+        html.low-memory *::after {
+            animation: none !important;
+            transition-duration: 0.08s !important;
+        }
+        html.low-memory .menu-bg .blob {
+            filter: none !important;
+            opacity: 0.12 !important;
+        }
+        html.low-memory .menu-bg .grain,
+        html.low-memory .sparkle,
+        html.low-memory .character-gif {
+            display: none !important;
+        }
+        html.low-memory .mascot-wrap {
+            animation: none !important;
+        }
+        html.low-memory .mascot-img,
+        html.low-memory .image-container,
+        html.low-memory .image-container.active {
+            filter: none !important;
+        }
+        html.low-memory .menu-item {
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+            background: rgba(255,255,255,0.94);
+            content-visibility: auto;
+            contain-intrinsic-size: 360px 410px;
+        }
+        html.low-memory .admin-card,
+        html.low-memory .admin-modal,
+        html.low-memory [class*="admin"] {
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+        }
+        html.low-memory .chile-particle { display: none !important; }
+
     </style>
 </head>
 <body class="locked">
@@ -1100,7 +1186,7 @@
 <div aria-hidden="true" class="sparkle s3"></div>
 <div class="mascot-wrap">
 <!-- Mascota: "Don Goloso" -->
-<img alt="Personaje de The Sweet Lovers Club saludando" class="mascot-img" loading="eager" src="personaje-saludo.gif"/>
+<img alt="Personaje de The Sweet Lovers Club saludando" class="mascot-img" decoding="async" fetchpriority="high" loading="eager" src="personaje-saludo-static.webp" data-animated-src="personaje-saludo.gif"/>
 </div>
 <div class="speech-bubble">
 <p>¡Bienvenido al <span class="accent">Club de los Amantes del Dulce</span>! ♡</p>
@@ -1136,7 +1222,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="temporada.webp"/>
 <img loading="lazy" decoding="async" alt="Corazones" class="gummy-img img-normal" src="corazones.webp"/>
-<img loading="lazy" decoding="async" alt="Corazones Enchilados" class="gummy-img img-spicy" src="corazones_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Corazones Enchilados" class="gummy-img img-spicy" data-src="corazones_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Corazones</h3>
@@ -1147,7 +1233,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img loading="lazy" decoding="async" alt="Sour Patch Sandia" class="gummy-img img-normal" src="sour-patch-sandia.webp"/>
-<img loading="lazy" decoding="async" alt="Sour Patch Sandia Enchilados" class="gummy-img img-spicy" src="sour-patch-sandia-enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch Sandia Enchilados" class="gummy-img img-spicy" data-src="sour-patch-sandia-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Sour Patch Sandia</h3>
@@ -1158,7 +1244,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img loading="lazy" decoding="async" alt="Pescaditos" class="gummy-img img-normal" src="pescaditos.webp"/>
-<img loading="lazy" decoding="async" alt="Pescaditos Enchilados" class="gummy-img img-spicy" src="pescaditos-enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Pescaditos Enchilados" class="gummy-img img-spicy" data-src="pescaditos-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Pescaditos</h3>
@@ -1169,7 +1255,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img loading="lazy" decoding="async" alt="Sour Patch" class="gummy-img img-normal" src="sour-patch.webp"/>
-<img loading="lazy" decoding="async" alt="Sour Patch Enchilados" class="gummy-img img-spicy" src="sour-patch-enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch Enchilados" class="gummy-img img-spicy" data-src="sour-patch-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Sour Patch</h3>
@@ -1180,7 +1266,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img loading="lazy" decoding="async" alt="Arcoiris" class="gummy-img img-normal" src="arcoiris.webp"/>
-<img loading="lazy" decoding="async" alt="Arcoiris Enchilados" class="gummy-img img-spicy" src="arcoiris_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Arcoiris Enchilados" class="gummy-img img-spicy" data-src="arcoiris_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Arcoiris</h3>
@@ -1191,7 +1277,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
 <img loading="lazy" decoding="async" alt="Skittles" class="gummy-img img-normal" src="skittles.webp"/>
-<img loading="lazy" decoding="async" alt="Skittles Enchilados" class="gummy-img img-spicy" src="skittles_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Skittles Enchilados" class="gummy-img img-spicy" data-src="skittles_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Skittles</h3>
@@ -1202,7 +1288,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
 <img loading="lazy" decoding="async" alt="Cherrys" class="gummy-img img-normal" src="cherry.webp"/>
-<img loading="lazy" decoding="async" alt="Cherrys Enchiladas" class="gummy-img img-spicy" src="cherry_enchilada.webp"/>
+<img loading="lazy" decoding="async" alt="Cherrys Enchiladas" class="gummy-img img-spicy" data-src="cherry_enchilada.webp"/>
 </div>
 <div class="item-info">
 <h3>Cherry</h3>
@@ -1213,7 +1299,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
 <img loading="lazy" decoding="async" alt="Fresas" class="gummy-img img-normal" src="fresas.webp"/>
-<img loading="lazy" decoding="async" alt="Fresas Enchiladas" class="gummy-img img-spicy" src="fresas-enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Fresas Enchiladas" class="gummy-img img-spicy" data-src="fresas-enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Fresas</h3>
@@ -1224,7 +1310,7 @@
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
 <img loading="lazy" decoding="async" alt="Winis" class="gummy-img img-normal" src="winis.webp"/>
-<img loading="lazy" decoding="async" alt="Winis Enchilada" class="gummy-img img-spicy" src="winis-enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Winis Enchilada" class="gummy-img img-spicy" data-src="winis-enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Winis</h3>
@@ -1234,7 +1320,7 @@
 <div class="menu-item" data-product-id="paleta-pepino">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Paletas de Pepino" class="gummy-img img-normal" src="paleta_pepino.webp"/>
-<img loading="lazy" decoding="async" alt="Paletas de Pepino Enchilados" class="gummy-img img-spicy" src="paleta_pepino_enchilado.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Pepino Enchilados" class="gummy-img img-spicy" data-src="paleta_pepino_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Paleta de Pepino</h3>
@@ -1244,7 +1330,7 @@
 <div class="menu-item" data-product-id="paleta-pina">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Paletas de Piña" class="gummy-img img-normal" src="paleta_pina.webp"/>
-<img loading="lazy" decoding="async" alt="Paletas de Piña Enchilados" class="gummy-img img-spicy" src="paleta_pina_enchilada.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Piña Enchilados" class="gummy-img img-spicy" data-src="paleta_pina_enchilada.webp"/>
 </div>
 <div class="item-info">
 <h3>Paleta de Piña</h3>
@@ -1254,7 +1340,7 @@
 <div class="menu-item" data-product-id="paleta-mango">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Paletas de Mango" class="gummy-img img-normal" src="paleta_mango.webp"/>
-<img loading="lazy" decoding="async" alt="Paletas de Mango Enchilados" class="gummy-img img-spicy" src="paleta_mango_enchilado.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Mango Enchilados" class="gummy-img img-spicy" data-src="paleta_mango_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Paletas de Mango</h3>
@@ -1264,7 +1350,7 @@
 <div class="menu-item" data-product-id="sonrisas">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Sonrisas" class="gummy-img img-normal" src="sonrisas.webp"/>
-<img loading="lazy" decoding="async" alt="Sonrisas Enchilada" class="gummy-img img-spicy" src="sonrisas_enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Sonrisas Enchilada" class="gummy-img img-spicy" data-src="sonrisas_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Sonrisas</h3>
@@ -1274,7 +1360,7 @@
 <div class="menu-item" data-product-id="dulce-tamarindo">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Dulce Tamarindo" class="gummy-img img-normal" src="dulce_de_tamarindo.webp"/>
-<img loading="lazy" decoding="async" alt="Dulce Tamarindo Enchilada" class="gummy-img img-spicy" src="dulce_de_tamarindo_enchilado.webp"/>
+<img loading="lazy" decoding="async" alt="Dulce Tamarindo Enchilada" class="gummy-img img-spicy" data-src="dulce_de_tamarindo_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Dulce de Tamarindo</h3>
@@ -1284,7 +1370,7 @@
 <div class="menu-item" data-product-id="aros-durazno">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Aros de Durazno" class="gummy-img img-normal" src="aros_de_durazno.webp"/>
-<img loading="lazy" decoding="async" alt="Aros de Durazno Enchilados" class="gummy-img img-spicy" src="aros_de_durazno_enchilado.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Durazno Enchilados" class="gummy-img img-spicy" data-src="aros_de_durazno_enchilado.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Durazno</h3>
@@ -1294,7 +1380,7 @@
 <div class="menu-item" data-product-id="aros-manzana">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Aros de Manzana" class="gummy-img img-normal" src="aros_de_manzana.webp"/>
-<img loading="lazy" decoding="async" alt="Aros de Manzana Enchilados" class="gummy-img img-spicy" src="aros_de_manzana_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Manzana Enchilados" class="gummy-img img-spicy" data-src="aros_de_manzana_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Manzano</h3>
@@ -1304,7 +1390,7 @@
 <div class="menu-item" data-product-id="aros-sandia">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Aros de Sandia" class="gummy-img img-normal" src="aros_sandia.webp"/>
-<img loading="lazy" decoding="async" alt="Aros de Sandia Enchilados" class="gummy-img img-spicy" src="aros_sandia_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Sandia Enchilados" class="gummy-img img-spicy" data-src="aros_sandia_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros de Sandía</h3>
@@ -1314,7 +1400,7 @@
 <div class="menu-item" data-product-id="aros-tropicales">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Aros Tropicales" class="gummy-img img-normal" src="aros_tropicales.webp"/>
-<img loading="lazy" decoding="async" alt="Aros Tropicales Enchilados" class="gummy-img img-spicy" src="aros_tropicales_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Aros Tropicales Enchilados" class="gummy-img img-spicy" data-src="aros_tropicales_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aros Tropicales</h3>
@@ -1324,7 +1410,7 @@
 <div class="menu-item" data-product-id="panditas">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Panditas" class="gummy-img img-normal" src="panditas_gomitas.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="panditas_gomitas_enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="panditas_gomitas_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Panditas</h3>
@@ -1334,7 +1420,7 @@
 <div class="menu-item" data-product-id="tiburones">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Tiburones" class="gummy-img img-normal" src="tiburones.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="tiburones_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="tiburones_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Tiburones</h3>
@@ -1344,7 +1430,7 @@
 <div class="menu-item" data-product-id="sandias">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Sandías" class="gummy-img img-normal" src="sandias.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="sandias_enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="sandias_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Sandías</h3>
@@ -1354,7 +1440,7 @@
 <div class="menu-item" data-product-id="manguitos">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Manguitos" class="gummy-img img-normal" src="manguitos.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="manguitos_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="manguitos_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Manguitos</h3>
@@ -1364,7 +1450,7 @@
 <div class="menu-item" data-product-id="lombrices">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Lombrices" class="gummy-img img-normal" src="lombrices.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="lombrices_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="lombrices_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Lombrices</h3>
@@ -1374,7 +1460,7 @@
 <div class="menu-item" data-product-id="picagomas">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Picagomas" class="gummy-img img-normal" src="picagomas.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="picagomas_enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="picagomas_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Picagomas</h3>
@@ -1384,7 +1470,7 @@
 <div class="menu-item" data-product-id="rellerindos">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Rellerindos" class="gummy-img img-normal" src="rellerindos.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="rellerindos_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="rellerindos_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Rellerindos</h3>
@@ -1394,7 +1480,7 @@
 <div class="menu-item agotado" data-product-id="aciduladitos">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Aciduladitos" class="gummy-img img-normal" src="aciduladitos.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="aciduladitos_enchilados.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="aciduladitos_enchilados.webp"/>
 </div>
 <div class="item-info">
 <h3>Aciduladitos</h3>
@@ -1404,7 +1490,7 @@
 <div class="menu-item" data-product-id="frutitas">
 <div class="image-container" onclick="toggleChile(this)">
 <img loading="lazy" decoding="async" alt="Frutitas" class="gummy-img img-normal" src="frutitas.webp"/>
-<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="frutitas_enchiladas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" data-src="frutitas_enchiladas.webp"/>
 </div>
 <div class="item-info">
 <h3>Frutitas</h3>
@@ -1486,19 +1572,46 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        function toggleChile(contenedor) {
-    const seEnchilo = !contenedor.classList.contains('active');
-    contenedor.classList.toggle('active');
+        async function toggleChile(contenedor) {
+    const goingSpicy = !contenedor.classList.contains('active');
+    const spicy = contenedor.querySelector('.img-spicy');
 
-    // Efecto sencillo: solo aparece al pasar de normal a enchilado.
-    if (seEnchilo && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // La versión enchilada NO se descarga hasta el primer toque.
+    if (goingSpicy && spicy && !spicy.getAttribute('src')) {
+        const pendingSrc = spicy.dataset.src;
+        if (pendingSrc) {
+            spicy.src = pendingSrc;
+            try {
+                // En modo ligero evitamos forzar decode(); dejamos al navegador decidir.
+                if (!window.SWEETCLUB_LITE_MODE && spicy.decode) {
+                    await spicy.decode();
+                }
+            } catch (_) {}
+        }
+    }
+
+    contenedor.classList.toggle('active', goingSpicy);
+
+    // Efecto visual solamente en equipos con recursos suficientes.
+    if (goingSpicy &&
+        !window.SWEETCLUB_LITE_MODE &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         lanzarPolvitoChile(contenedor);
+    }
+
+    // En equipos de poca RAM liberamos la imagen enchilada al volver a normal.
+    if (!goingSpicy && window.SWEETCLUB_LITE_MODE && spicy?.getAttribute('src')) {
+        const currentSrc = spicy.getAttribute('src');
+        if (currentSrc) spicy.dataset.src = currentSrc;
+        window.setTimeout(() => {
+            if (!contenedor.classList.contains('active')) spicy.removeAttribute('src');
+        }, 120);
     }
 }
 
 function lanzarPolvitoChile(contenedor) {
     // Un poco más de partículas, manteniendo el efecto ligero y fluido.
-    const PARTICULAS = 20;
+    const PARTICULAS = 12;
     const fragmento = document.createDocumentFragment();
 
     for (let i = 0; i < PARTICULAS; i++) {
@@ -1533,7 +1646,12 @@ function lanzarPolvitoChile(contenedor) {
             const enterBtn = document.getElementById('enterBtn');
             const skipBtn = document.getElementById('skipBtn');
             const body = document.body;
-            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.SWEETCLUB_LITE_MODE;
+            const mascot = intro?.querySelector('.mascot-img');
+
+            if (mascot && !window.SWEETCLUB_LITE_MODE && mascot.dataset.animatedSrc) {
+                mascot.src = mascot.dataset.animatedSrc;
+            }
 
             let opened = false;
             function openClub() {
@@ -1761,7 +1879,7 @@ function lanzarPolvitoChile(contenedor) {
             }
 
             function startGifCycle() {
-                if (running) return;
+                if (running || window.SWEETCLUB_LITE_MODE) return;
 
                 running = true;
                 scheduleNext(FIRST_DELAY);
@@ -1954,6 +2072,8 @@ function lanzarPolvitoChile(contenedor) {
                     badge = document.createElement('img');
                     badge.className = 'badge-nuevo';
                     badge.alt = '';
+                    badge.loading = 'lazy';
+                    badge.decoding = 'async';
                     imageContainer.prepend(badge);
                 }
 
@@ -1984,7 +2104,12 @@ function lanzarPolvitoChile(contenedor) {
                 }
 
                 if (spicy && selected.imagen_enchilada) {
-                    spicy.src = selected.imagen_enchilada;
+                    spicy.dataset.src = selected.imagen_enchilada;
+                    if (!spicy.closest('.image-container')?.classList.contains('active')) {
+                        spicy.removeAttribute('src');
+                    } else {
+                        spicy.src = selected.imagen_enchilada;
+                    }
                 }
             }
 
