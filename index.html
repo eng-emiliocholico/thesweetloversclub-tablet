@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Sweet Lovers Club — Menú de Socios</title>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Sweet Lovers Club" name="apple-mobile-web-app-title"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Manrope:wght@400;500;700&display=swap');
+
+        /* ============================================
+           TOKENS — Paleta "candy speakeasy"
+           ============================================ */
+        :root {
+            --bg-void: #FFF8F4;
+            --ink: #6B4452;
+            --velvet: #F7A7B9;
+            --velvet-dark: #FBC3CF;
+            --velvet-darker: #FDE1E7;
+            --gold: #EFB37A;
+            --gold-light: #FFD7A8;
+            --pink: #F77F9E;
+            --pink-soft: #FFD1DC;
+            --rose: #E95D83;
+            --peach: #FFC8AF;
+            --lilac: #E8D7F3;
+            --cream: #FFFDF9;
+            --cream-dim: rgba(107, 68, 82, 0.70);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: linear-gradient(145deg, #FFFDFB 0%, #FFF6F8 48%, #FFF9F2 100%);
+            color: var(--ink);
+            margin: 0;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        body.locked { overflow: hidden; height: 100%; }
+
+        button { font-family: inherit; }
+
+        a { color: inherit; }
+
+        :focus-visible {
+            outline: 2px solid var(--gold-light);
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.15s !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* ============================================
+           INTRO — Telón de bienvenida
+           ============================================ */
+        .intro {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 18%, #FFFDF9 0%, #FFF8F2 48%, #FCEFE7 100%);
+        }
+
+        .curtain {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 54%;
+            z-index: 3;
+            background:
+                repeating-linear-gradient(90deg,
+                    #FFFDF9 0px, #FFFDF9 18px,
+                    #FFF6EF 18px, #FFF6EF 36px,
+                    #FCEDE6 36px, #FCEDE6 52px);
+            box-shadow: inset 0 0 46px rgba(255,255,255,0.52), inset 0 0 14px rgba(180,130,105,0.08);
+            transition: transform 1.15s cubic-bezier(.77,0,.18,1);
+        }
+
+        .curtain-left  { left: 0;  border-radius: 0 0 60px 0; transform: translateX(0); }
+        .curtain-right { right: 0; border-radius: 0 0 0 60px; transform: translateX(0); }
+
+        .intro.opening .curtain-left  { transform: translateX(-104%); }
+        .intro.opening .curtain-right { transform: translateX(104%); }
+
+        .valance {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 64px;
+            z-index: 4;
+            background: linear-gradient(180deg, #FFF9F4, #F8E9DF);
+            border-radius: 0 0 50% 50% / 0 0 22px 22px;
+            box-shadow: 0 6px 18px rgba(171,125,104,0.12);
+            transition: opacity 0.5s ease;
+        }
+
+        .intro.opening .valance { opacity: 0; transition-delay: 0.5s; }
+
+        .intro-content {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 20px;
+            width: min(94vw, 900px);
+            max-width: 900px;
+            transition: opacity 0.45s ease, transform 0.45s ease;
+        }
+
+        .intro.opening .intro-content {
+            opacity: 0;
+            transform: scale(0.94);
+        }
+
+        .skip-link {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            z-index: 6;
+            background: none;
+            border: 1px solid rgba(247,236,221,0.35);
+            color: var(--cream-dim);
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+        .skip-link:hover { border-color: var(--gold-light); color: var(--gold-light); }
+
+        /*
+           El GIF original mide 1280 × 720 (16:9).
+           Lo mostramos como una pieza visual grande y responsiva.
+           El cálculo con vh evita que se salga de pantallas bajitas,
+           pero ya no lo reduce a un tamaño diminuto.
+        */
+        .mascot-wrap {
+            width: min(92vw, 820px, calc(66vh * 16 / 9));
+            min-width: min(72vw, 340px);
+            margin: -4px auto 2px;
+            animation: mascotBob 4.5s ease-in-out infinite;
+            flex: 0 0 auto;
+        }
+        .mascot-img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+            display: block;
+            filter:
+                drop-shadow(0 0 2px rgba(255,255,255,0.98))
+                drop-shadow(0 0 4px rgba(255,255,255,0.82))
+                drop-shadow(0 10px 18px rgba(185,105,132,0.18));
+        }
+        @keyframes mascotBob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(-1.5deg); }
+        }
+
+        .speech-bubble {
+            background: var(--cream);
+            color: var(--ink);
+            border-radius: 18px;
+            padding: 12px 18px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: clamp(0.95rem, 3.2vw, 1.15rem);
+            line-height: 1.35;
+            position: relative;
+            margin: 0 auto 22px;
+            max-width: 320px;
+            box-shadow: 0 12px 28px rgba(185,105,132,0.16);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 9px 0 9px;
+            border-style: solid;
+            border-color: var(--cream) transparent transparent transparent;
+        }
+        .speech-bubble .accent { color: var(--rose); }
+
+        .intro-title {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.9rem, 7vw, 2.7rem);
+            margin: 0 0 4px;
+            letter-spacing: 0.3px;
+        }
+        .intro-title em {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        /* Colores oficiales del nombre */
+        .brand-the { color: #06A2BB; }
+        .brand-sweet { color: #F2B024; }
+        .brand-lovers { color: #DF4D58; }
+        .brand-club { color: #57437E; }
+
+        .intro-sub {
+            font-size: clamp(0.95rem, 3vw, 1.05rem);
+            color: rgba(107, 68, 82, 0.82);
+            margin: 0 0 26px;
+            line-height: 1.5;
+        }
+
+        .enter-btn {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            color: var(--ink);
+            border: none;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 14px 34px;
+            border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(217,166,83,0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .enter-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 26px rgba(217,166,83,0.45); }
+        .enter-btn:active { transform: translateY(0); }
+
+        .sparkle {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: var(--gold-light);
+            clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
+            opacity: 0.25;
+            animation: twinkle 2.6s ease-in-out infinite;
+        }
+        .s1 { top: 8%;  left: 12%; animation-delay: 0s; }
+        .s2 { top: 4%;  right: 10%; animation-delay: 0.7s; width: 7px; height: 7px; }
+        .s3 { bottom: 22%; right: 4%; animation-delay: 1.4s; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.15; transform: scale(0.8); }
+            50% { opacity: 0.9; transform: scale(1.15); }
+        }
+
+        /* ============================================
+           FONDO ANIMADO DEL MENÚ
+           ============================================ */
+        .menu-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: linear-gradient(145deg, #FFFDFB 0%, #FFF6F8 48%, #FFF9F2 100%);
+        }
+        .menu-bg::before {
+            content: '';
+            position: absolute;
+            inset: -15%;
+            background-image: radial-gradient(rgba(247,127,158,0.25) 1.3px, transparent 1.3px);
+            background-size: 34px 34px;
+            opacity: 0.14;
+            animation: drift 90s linear infinite;
+        }
+        .menu-bg .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+        .menu-bg .blob-a {
+            width: 55vmax; height: 55vmax;
+            left: -18%; top: -14%;
+            background: radial-gradient(circle, rgba(255,188,205,0.55), transparent 65%);
+            animation: floatA 38s ease-in-out infinite alternate;
+        }
+        .menu-bg .blob-b {
+            width: 50vmax; height: 50vmax;
+            right: -16%; bottom: -18%;
+            background: radial-gradient(circle, rgba(255,216,174,0.48), transparent 65%);
+            animation: floatB 44s ease-in-out infinite alternate;
+        }
+        .menu-bg .blob-c {
+            width: 34vmax; height: 34vmax;
+            right: 8%; top: 12%;
+            background: radial-gradient(circle, rgba(232,215,243,0.50), transparent 65%);
+            animation: floatA 30s ease-in-out infinite alternate-reverse;
+        }
+        .menu-bg .grain {
+            position: absolute; inset: 0;
+            opacity: 0.05;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        @keyframes drift {
+            from { transform: translate(0,0); }
+            to   { transform: translate(-34px,-34px); }
+        }
+        @keyframes floatA {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(6%,5%) scale(1.06); }
+        }
+        @keyframes floatB {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(-5%,-6%) scale(1.05); }
+        }
+
+        /* ============================================
+           CONTENIDO PRINCIPAL
+           ============================================ */
+        .site-content {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 34px;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .club-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(217,166,83,0.12);
+            border: 1px solid rgba(217,166,83,0.4);
+            color: var(--gold-light);
+            font-size: 0.8rem;
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+
+        .logo-img {
+            width: clamp(100px, 20vw, 160px);
+            height: auto;
+            margin-bottom: 12px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .logo-img:hover { transform: scale(1.05); }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.9rem, 6vw, 2.9rem);
+            color: var(--cream);
+        }
+        header h1 em {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: clamp(1.05rem, 3vw, 1.25rem);
+            color: var(--cream-dim);
+            margin-top: 10px;
+            padding: 0 10px;
+            max-width: 560px;
+        }
+
+        /* --- GRID --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 26px;
+            max-width: 1200px;
+            width: 100%;
+            padding-bottom: 60px;
+        }
+
+        /* --- TARJETA "BOLETO DE SOCIO" --- */
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 18px 14px 20px;
+            background: linear-gradient(165deg, rgba(255,255,255,0.88), rgba(255,249,251,0.74));
+            border: 1px solid rgba(233,93,131,0.16);
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+        .menu-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 16px 34px rgba(185,105,132,0.16);
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 240px;
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 42%, rgba(255,238,244,0.95), rgba(255,255,255,0.30) 64%, transparent 72%);
+            transition: transform 0.3s ease, filter 0.4s ease;
+        }
+        .image-container::before { content: ''; display: block; padding-top: 100%; }
+        .image-container:hover { transform: scale(1.04); }
+        .image-container.active {
+            filter: drop-shadow(0 0 18px rgba(247,127,158,0.30));
+        }
+
+        .gummy-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .img-normal {
+    z-index: 1;
+    opacity: 1;
+}
+
+.img-spicy {
+    z-index: 2;
+    opacity: 0;
+}
+
+/* Cuando se activa, se intercambian */
+.image-container.active .img-normal {
+    opacity: 0;
+}
+
+.image-container.active .img-spicy {
+    opacity: 1;
+}
+
+        .item-info {
+            width: 100%;
+            padding-top: 14px;
+            margin-top: 4px;
+            border-top: 1px dashed rgba(233,93,131,0.28);
+        }
+        .item-info h3 {
+            margin: 0 0 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.1rem, 3.6vw, 1.35rem);
+            color: var(--ink);
+            line-height: 1.3;
+            text-shadow: 0 1px 0 rgba(255,255,255,.55);
+        }
+
+        .price {
+            display: inline-block;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            color: var(--ink);
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2.8vw, 1rem);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        .badge-nuevo {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            width: clamp(56px, 14vw, 92px);
+            height: auto;
+            z-index: 10;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));
+        }
+
+        .menu-item.agotado .price {
+            background: linear-gradient(135deg, #8a8a8a, #6d6d6d);
+            color: #eee;
+            font-size: 0;
+        }
+        .menu-item.agotado .price::after {
+            content: "No disponible";
+            font-size: 0.85rem;
+            display: block;
+        }
+        .menu-item.agotado .image-container { opacity: 0.55; }
+
+        /* ============================================
+           PERSONAJES GIF DEL MENÚ — grandes, ligeros y responsivos
+           ============================================ */
+        .character-gif {
+            position: fixed;
+            z-index: 420;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            contain: layout paint;
+            transform: translateZ(0);
+            transition: opacity .42s ease, transform .68s cubic-bezier(.22,1,.36,1);
+        }
+
+        .character-gif img {
+            display: block;
+            width: clamp(260px, 37.5vw, 475px);
+            height: auto;
+            max-width: 72vw;
+            max-height: 72vh;
+            object-fit: contain;
+            filter:
+                drop-shadow(0 0 2px rgba(255,255,255,.98))
+                drop-shadow(0 0 4px rgba(255,255,255,.82))
+                drop-shadow(0 12px 20px rgba(185,105,132,.16));
+            backface-visibility: hidden;
+        }
+
+        .character-gif.is-visible {
+            opacity: 1;
+            visibility: visible;
+            will-change: transform, opacity;
+        }
+
+        /* Los GIF inferiores siguen reproduciéndose, pero su primer y último
+           segundo permanecen ocultos para disimular esos fragmentos. */
+        .gif-right-bottom.is-trim-hidden,
+        .gif-left-bottom.is-trim-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: none !important;
+        }
+
+        /* Superior derecha */
+        .gif-right-top {
+            right: 0;
+            top: clamp(46px, 7vh, 78px);
+            transform: translate(72%, -5%) rotate(5deg);
+        }
+        .gif-right-top.is-visible {
+            transform: translate(14%, 0) rotate(2deg);
+        }
+
+        /* Inferior derecha */
+        .gif-right-bottom {
+            right: 0;
+            bottom: 0;
+            transform: translate(72%, 34%) rotate(5deg);
+        }
+        .gif-right-bottom.is-visible {
+            transform: translate(14%, 11%) rotate(2deg);
+        }
+
+        /* Inferior izquierda */
+        .gif-left-bottom {
+            left: 0;
+            bottom: 0;
+            transform: translate(-72%, 34%) rotate(-5deg);
+        }
+        .gif-left-bottom.is-visible {
+            transform: translate(-14%, 11%) rotate(-2deg);
+        }
+
+        /* Teléfonos pequeños */
+        @media (max-width: 480px) {
+            .character-gif img {
+                width: clamp(220px, 72vw, 320px);
+                max-width: 78vw;
+                max-height: 58vh;
+            }
+            .gif-right-top { top: 42px; }
+            .gif-right-top.is-visible { transform: translate(18%, 0) rotate(2deg); }
+            .gif-right-bottom.is-visible { transform: translate(18%, 12%) rotate(2deg); }
+            .gif-left-bottom.is-visible { transform: translate(-18%, 12%) rotate(-2deg); }
+        }
+
+        /* Teléfonos grandes / tablets verticales */
+        @media (min-width: 481px) and (max-width: 900px) {
+            .character-gif img {
+                width: clamp(280px, 58vw, 390px);
+                max-width: 68vw;
+                max-height: 64vh;
+            }
+            .gif-right-top.is-visible { transform: translate(15%, 0) rotate(2deg); }
+            .gif-right-bottom.is-visible { transform: translate(15%, 10%) rotate(2deg); }
+            .gif-left-bottom.is-visible { transform: translate(-15%, 10%) rotate(-2deg); }
+        }
+
+        /* Pantallas bajitas / horizontal */
+        @media (max-height: 620px) and (orientation: landscape) {
+            .character-gif img {
+                width: clamp(230px, 32vw, 360px);
+                max-height: 74vh;
+            }
+            .gif-right-top { top: 34px; }
+            .gif-right-top.is-visible { transform: translate(12%, 0) rotate(2deg); }
+            .gif-right-bottom.is-visible { transform: translate(12%, 13%) rotate(2deg); }
+            .gif-left-bottom.is-visible { transform: translate(-12%, 13%) rotate(-2deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .character-gif { transition: opacity .15s linear; }
+            .character-gif,
+            .character-gif.is-visible { transform: none !important; }
+        }
+
+        footer.club-footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: var(--cream-dim);
+            font-size: 0.85rem;
+            padding: 10px 20px 40px;
+        }
+
+        /* ============================================
+           RESPONSIVO
+           ============================================ */
+        @media (max-width: 350px) {
+            .site-content { padding: 15px; }
+            .logo-img { width: 84px; }
+            .menu-grid { grid-template-columns: 1fr; gap: 18px; }
+            .curtain { width: 60%; }
+        }
+        @media (min-width: 351px) and (max-width: 767px) {
+            .logo-img { width: 100px; }
+        }
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .logo-img { width: 115px; }
+            .menu-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 34px; }
+        }
+        @media (min-width: 1025px) and (max-width: 1366px) {
+            .logo-img { width: 128px; }
+        }
+        @media (min-width: 1367px) {
+            .logo-img { width: 140px; }
+        }
+        @media (min-width: 1600px) {
+            .logo-img { width: 150px; }
+            .menu-grid { grid-template-columns: repeat(4, 1fr); max-width: 1400px; }
+        }
+        @media (max-height: 600px) and (orientation: landscape) {
+            header { margin-bottom: 15px; flex-direction: row; justify-content: center; gap: 20px; flex-wrap: wrap; }
+            .logo-img { width: 90px; margin-bottom: 0; }
+            .menu-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+            .intro { align-items: flex-start; overflow-y: auto; }
+            .intro-content { padding-top: 54px; padding-bottom: 28px; }
+            .mascot-wrap {
+                width: min(72vw, 610px, calc(72vh * 16 / 9));
+                min-width: 300px;
+                margin-bottom: -8px;
+            }
+            .speech-bubble { margin-bottom: 10px; }
+            .intro-title { font-size: clamp(1.45rem, 4.2vw, 2rem); }
+            .intro-sub { margin-bottom: 14px; font-size: .92rem; }
+            .enter-btn { padding: 11px 27px; }
+        }
+        @media (max-width: 480px) and (orientation: portrait) {
+            .logo-img { max-height: 110px; }
+        }
+
+        /* GIF de bienvenida: ajustes por dispositivo */
+        @media (max-width: 767px) and (orientation: portrait) {
+            .intro-content { width: 96vw; padding-left: 10px; padding-right: 10px; }
+            .mascot-wrap {
+                width: min(118vw, 650px, calc(48vh * 16 / 9));
+                min-width: 390px;
+                margin-left: 50%;
+                transform: translateX(-50%);
+                animation: none;
+            }
+            .mascot-img {
+                animation: mascotImageBob 4.5s ease-in-out infinite;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mascot-wrap {
+                width: min(78vw, 820px, calc(60vh * 16 / 9));
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .mascot-wrap {
+                width: min(700px, calc(58vh * 16 / 9));
+            }
+        }
+
+        @keyframes mascotImageBob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(-1.5deg); }
+        }
+    
+
+        /* ============================================
+           ADMINISTRACIÓN OCULTA — SUPABASE
+           ============================================ */
+        #adminTrigger {
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body.admin-open { overflow: hidden; }
+
+        .admin-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2500;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(73, 44, 55, .34);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .2s ease, visibility .2s ease;
+        }
+
+        .admin-overlay.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-card {
+            width: min(94vw, 520px);
+            max-height: min(88vh, 760px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 253, 249, .98);
+            color: var(--ink);
+            border: 1px solid rgba(233, 93, 131, .16);
+            border-radius: 24px;
+            box-shadow: 0 26px 70px rgba(107, 68, 82, .25);
+            transform: translateY(10px) scale(.985);
+            transition: transform .22s ease;
+        }
+
+        .admin-overlay.is-open .admin-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .admin-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid rgba(233, 93, 131, .12);
+        }
+
+        .admin-title-wrap { min-width: 0; }
+        .admin-title {
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(1.25rem, 4vw, 1.55rem);
+            line-height: 1.15;
+            color: var(--ink);
+        }
+        .admin-subtitle {
+            margin: 4px 0 0;
+            color: rgba(107, 68, 82, .66);
+            font-size: .82rem;
+        }
+
+        .admin-close {
+            flex: 0 0 auto;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: #FFF1F5;
+            color: var(--ink);
+            font-size: 1.25rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .admin-body {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 18px;
+        }
+
+        .admin-login {
+            display: grid;
+            gap: 13px;
+        }
+
+        .admin-label {
+            font-size: .86rem;
+            font-weight: 700;
+        }
+
+        .admin-password {
+            width: 100%;
+            min-height: 48px;
+            border: 1px solid rgba(107, 68, 82, .22);
+            border-radius: 14px;
+            background: #fff;
+            color: var(--ink);
+            padding: 11px 13px;
+            font: inherit;
+            outline: none;
+        }
+
+        .admin-password:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 3px rgba(247, 127, 158, .12);
+        }
+
+        .admin-primary,
+        .admin-secondary {
+            min-height: 46px;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .admin-primary {
+            border: 0;
+            color: var(--ink);
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            box-shadow: 0 8px 18px rgba(217, 166, 83, .22);
+        }
+
+        .admin-secondary {
+            border: 1px solid rgba(107, 68, 82, .16);
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .admin-primary:disabled,
+        .admin-secondary:disabled {
+            opacity: .55;
+            cursor: wait;
+        }
+
+        .admin-message {
+            display: none;
+            margin: 0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: .84rem;
+            line-height: 1.35;
+        }
+        .admin-message.show { display: block; }
+        .admin-message.error { background: #FFF0F2; color: #A33A53; }
+        .admin-message.ok { background: #F0FAF4; color: #377B52; }
+
+        .admin-panel { display: none; }
+        .admin-panel.is-active { display: block; }
+
+        .admin-products {
+            display: grid;
+            gap: 9px;
+        }
+
+        .admin-product {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-height: 58px;
+            padding: 10px 12px;
+            border: 1px solid rgba(233, 93, 131, .12);
+            border-radius: 15px;
+            background: #fff;
+        }
+
+        .admin-product-name {
+            min-width: 0;
+            font-weight: 700;
+            font-size: .92rem;
+            line-height: 1.2;
+        }
+
+        /* Controles avanzados del administrador:
+           orden, distintivo y presentación/modelo. */
+        .admin-product {
+            display: block;
+        }
+
+        .admin-product-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-product-controls {
+            display: grid;
+            grid-template-columns: auto minmax(118px, 1fr) minmax(138px, 1.15fr);
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(233, 93, 131, .13);
+        }
+
+        .admin-order-controls {
+            display: inline-flex;
+            gap: 5px;
+        }
+
+        .admin-order-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(107, 68, 82, .15);
+            border-radius: 10px;
+            background: #FFF9FB;
+            color: var(--ink);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .admin-order-btn:disabled {
+            opacity: .35;
+            cursor: default;
+        }
+
+        .admin-select {
+            width: 100%;
+            min-height: 36px;
+            padding: 7px 28px 7px 9px;
+            border: 1px solid rgba(107, 68, 82, .16);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: .78rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .admin-select:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 2px rgba(247, 127, 158, .10);
+        }
+
+        .admin-control-caption {
+            display: block;
+            margin: 0 0 4px;
+            color: rgba(107, 68, 82, .58);
+            font-size: .67rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .admin-control-group {
+            min-width: 0;
+        }
+
+        @media (max-width: 480px) {
+            .admin-product-controls {
+                grid-template-columns: auto 1fr;
+            }
+
+            .admin-control-group.admin-variant-group {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .stock-toggle {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 116px;
+            justify-content: center;
+            min-height: 38px;
+            padding: 7px 10px;
+            border: 0;
+            border-radius: 999px;
+            font: inherit;
+            font-size: .78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .15s ease, opacity .15s ease, background .15s ease;
+        }
+        .stock-toggle:active { transform: scale(.97); }
+        .stock-toggle.available { background: #EAF8EF; color: #34764E; }
+        .stock-toggle.soldout { background: #FFF0F2; color: #A33A53; }
+        .stock-toggle.is-saving { opacity: .55; cursor: wait; }
+
+        .stock-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .admin-footer {
+            display: none;
+            gap: 9px;
+            padding: 14px 18px 18px;
+            border-top: 1px solid rgba(233, 93, 131, .12);
+            background: rgba(255, 253, 249, .98);
+        }
+        .admin-footer.is-active { display: grid; }
+
+        @media (max-width: 480px) {
+            .admin-overlay { padding: 10px; align-items: end; }
+            .admin-card {
+                width: 100%;
+                max-height: 90dvh;
+                border-radius: 22px 22px 14px 14px;
+            }
+            .admin-head { padding: 15px 15px 12px; }
+            .admin-body { padding: 14px; }
+            .admin-product { min-height: 56px; padding: 9px 10px; }
+            .stock-toggle { min-width: 108px; }
+            .admin-footer { padding: 12px 14px 14px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .admin-overlay,
+            .admin-card,
+            .stock-toggle { transition: none !important; }
+        }
+
+
+
+        /* ============================================
+           EFECTO LIGERO DE POLVITO DE CHILE
+           Se activa solo al cambiar a la versión enchilada.
+           ============================================ */
+        .chile-particle {
+            position: absolute;
+            top: 3%;
+            left: 50%;
+            z-index: 6;
+            width: var(--size, 5px);
+            height: var(--size, 5px);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(circle, #D94A20 0 45%, #A92B17 60%, rgba(169,43,23,0) 72%);
+            transform: translate3d(var(--x0, 0px), -8px, 0) scale(.7);
+            animation: chileFall var(--dur, 900ms) ease-out forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes chileFall {
+            0% {
+                opacity: 0;
+                transform: translate3d(var(--x0, 0px), -8px, 0) scale(.65);
+            }
+            15% { opacity: .9; }
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--x1, 0px), var(--y1, 145px), 0) scale(.25);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .chile-particle { display: none !important; }
+        }
+
+    </style>
+</head>
+<body class="locked">
+<!-- ============================================
+         PANTALLA DE ENTRADA — TELÓN + MASCOTA
+         ============================================ -->
+<section aria-label="Bienvenida al club" class="intro" id="intro">
+<button class="skip-link" id="skipBtn" type="button">Saltar</button>
+<div class="curtain curtain-left"></div>
+<div class="curtain curtain-right"></div>
+<div class="valance"></div>
+<div class="intro-content">
+<div aria-hidden="true" class="sparkle s1"></div>
+<div aria-hidden="true" class="sparkle s2"></div>
+<div aria-hidden="true" class="sparkle s3"></div>
+<div class="mascot-wrap">
+<!-- Mascota: "Don Goloso" -->
+<img alt="Personaje de The Sweet Lovers Club saludando" class="mascot-img" loading="eager" src="personaje-saludo.gif"/>
+</div>
+<div class="speech-bubble">
+<p>¡Bienvenido al <span class="accent">Club de los Amantes del Dulce</span>! ♡</p>
+</div>
+<h1 class="intro-title"><span class="brand-the">The</span> <span class="brand-sweet">Sweet</span> <em class="brand-lovers">Lovers</em> <span class="brand-club">Club</span></h1>
+<p class="intro-sub">Aquí cada gomita tiene dos caras: la dulce y la enchilada. <br> Antes de decidir cuál va contigo, abramos el telón.</p>
+<button class="enter-btn" id="enterBtn" type="button">Entrar al club</button>
+</div>
+</section>
+<noscript>
+<style>#intro{display:none;} #siteContent{display:flex !important;}</style>
+</noscript>
+<!-- ============================================
+         FONDO ANIMADO DEL MENÚ
+         ============================================ -->
+<div aria-hidden="true" class="menu-bg">
+<div class="blob blob-a"></div>
+<div class="blob blob-b"></div>
+<div class="blob blob-c"></div>
+<div class="grain"></div>
+</div>
+<!-- ============================================
+         CONTENIDO DEL MENÚ
+         ============================================ -->
+<div class="site-content" hidden="" id="siteContent">
+<header>
+<img alt="Logo The Sweet Lovers Club" class="logo-img" draggable="false" id="adminTrigger" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x100/6E1029/F7ECDD?text=Sweet+Lovers+Club'" src="logo.webp"/>
+<h1><span class="brand-the">The</span> <span class="brand-sweet">Sweet</span> <em class="brand-lovers">Lovers</em> <span class="brand-club">Club</span></h1>
+<p>👆 Toca tu gomita favorita para enchilarla</p>
+</header>
+<main class="menu-grid">
+<div class="menu-item" data-product-id="corazones">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="temporada.webp"/>
+<img loading="lazy" decoding="async" alt="Corazones" class="gummy-img img-normal" src="corazones.webp"/>
+<img loading="lazy" decoding="async" alt="Corazones Enchilados" class="gummy-img img-spicy" src="corazones_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Corazones</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item agotado" data-product-id="sour-patch-sandia">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch Sandia" class="gummy-img img-normal" src="sour-patch-sandia.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch Sandia Enchilados" class="gummy-img img-spicy" src="sour-patch-sandia-enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Sour Patch Sandia</h3>
+<span class="price">$45.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="pescaditos">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
+<img loading="lazy" decoding="async" alt="Pescaditos" class="gummy-img img-normal" src="pescaditos.webp"/>
+<img loading="lazy" decoding="async" alt="Pescaditos Enchilados" class="gummy-img img-spicy" src="pescaditos-enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Pescaditos</h3>
+<span class="price">$45.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="sour-patch">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch" class="gummy-img img-normal" src="sour-patch.webp"/>
+<img loading="lazy" decoding="async" alt="Sour Patch Enchilados" class="gummy-img img-spicy" src="sour-patch-enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Sour Patch</h3>
+<span class="price">$45.00</span>
+</div>
+</div>
+<div class="menu-item agotado" data-product-id="arcoiris">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
+<img loading="lazy" decoding="async" alt="Arcoiris" class="gummy-img img-normal" src="arcoiris.webp"/>
+<img loading="lazy" decoding="async" alt="Arcoiris Enchilados" class="gummy-img img-spicy" src="arcoiris_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Arcoiris</h3>
+<span class="price">$45.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="skittles">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Importado" class="badge-nuevo" src="producto-importado.webp"/>
+<img loading="lazy" decoding="async" alt="Skittles" class="gummy-img img-normal" src="skittles.webp"/>
+<img loading="lazy" decoding="async" alt="Skittles Enchilados" class="gummy-img img-spicy" src="skittles_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Skittles</h3>
+<span class="price">$45.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="cherry">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
+<img loading="lazy" decoding="async" alt="Cherrys" class="gummy-img img-normal" src="cherry.webp"/>
+<img loading="lazy" decoding="async" alt="Cherrys Enchiladas" class="gummy-img img-spicy" src="cherry_enchilada.webp"/>
+</div>
+<div class="item-info">
+<h3>Cherry</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="fresas">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
+<img loading="lazy" decoding="async" alt="Fresas" class="gummy-img img-normal" src="fresas.webp"/>
+<img loading="lazy" decoding="async" alt="Fresas Enchiladas" class="gummy-img img-spicy" src="fresas-enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Fresas</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="winis">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Etiqueta Nuevo" class="badge-nuevo" src="new.webp"/>
+<img loading="lazy" decoding="async" alt="Winis" class="gummy-img img-normal" src="winis.webp"/>
+<img loading="lazy" decoding="async" alt="Winis Enchilada" class="gummy-img img-spicy" src="winis-enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Winis</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="paleta-pepino">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Paletas de Pepino" class="gummy-img img-normal" src="paleta_pepino.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Pepino Enchilados" class="gummy-img img-spicy" src="paleta_pepino_enchilado.webp"/>
+</div>
+<div class="item-info">
+<h3>Paleta de Pepino</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="paleta-pina">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Paletas de Piña" class="gummy-img img-normal" src="paleta_pina.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Piña Enchilados" class="gummy-img img-spicy" src="paleta_pina_enchilada.webp"/>
+</div>
+<div class="item-info">
+<h3>Paleta de Piña</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="paleta-mango">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Paletas de Mango" class="gummy-img img-normal" src="paleta_mango.webp"/>
+<img loading="lazy" decoding="async" alt="Paletas de Mango Enchilados" class="gummy-img img-spicy" src="paleta_mango_enchilado.webp"/>
+</div>
+<div class="item-info">
+<h3>Paletas de Mango</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="sonrisas">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Sonrisas" class="gummy-img img-normal" src="sonrisas.webp"/>
+<img loading="lazy" decoding="async" alt="Sonrisas Enchilada" class="gummy-img img-spicy" src="sonrisas_enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Sonrisas</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="dulce-tamarindo">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Dulce Tamarindo" class="gummy-img img-normal" src="dulce_de_tamarindo.webp"/>
+<img loading="lazy" decoding="async" alt="Dulce Tamarindo Enchilada" class="gummy-img img-spicy" src="dulce_de_tamarindo_enchilado.webp"/>
+</div>
+<div class="item-info">
+<h3>Dulce de Tamarindo</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="aros-durazno">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Aros de Durazno" class="gummy-img img-normal" src="aros_de_durazno.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Durazno Enchilados" class="gummy-img img-spicy" src="aros_de_durazno_enchilado.webp"/>
+</div>
+<div class="item-info">
+<h3>Aros de Durazno</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="aros-manzana">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Aros de Manzana" class="gummy-img img-normal" src="aros_de_manzana.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Manzana Enchilados" class="gummy-img img-spicy" src="aros_de_manzana_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Aros de Manzano</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="aros-sandia">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Aros de Sandia" class="gummy-img img-normal" src="aros_sandia.webp"/>
+<img loading="lazy" decoding="async" alt="Aros de Sandia Enchilados" class="gummy-img img-spicy" src="aros_sandia_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Aros de Sandía</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="aros-tropicales">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Aros Tropicales" class="gummy-img img-normal" src="aros_tropicales.webp"/>
+<img loading="lazy" decoding="async" alt="Aros Tropicales Enchilados" class="gummy-img img-spicy" src="aros_tropicales_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Aros Tropicales</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="panditas">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Panditas" class="gummy-img img-normal" src="panditas_gomitas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="panditas_gomitas_enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Panditas</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="tiburones">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Tiburones" class="gummy-img img-normal" src="tiburones.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="tiburones_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Tiburones</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="sandias">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Sandías" class="gummy-img img-normal" src="sandias.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="sandias_enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Sandías</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="manguitos">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Manguitos" class="gummy-img img-normal" src="manguitos.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="manguitos_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Manguitos</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="lombrices">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Lombrices" class="gummy-img img-normal" src="lombrices.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="lombrices_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Lombrices</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="picagomas">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Picagomas" class="gummy-img img-normal" src="picagomas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="picagomas_enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Picagomas</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="rellerindos">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Rellerindos" class="gummy-img img-normal" src="rellerindos.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="rellerindos_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Rellerindos</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item agotado" data-product-id="aciduladitos">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Aciduladitos" class="gummy-img img-normal" src="aciduladitos.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="aciduladitos_enchilados.webp"/>
+</div>
+<div class="item-info">
+<h3>Aciduladitos</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+<div class="menu-item" data-product-id="frutitas">
+<div class="image-container" onclick="toggleChile(this)">
+<img loading="lazy" decoding="async" alt="Frutitas" class="gummy-img img-normal" src="frutitas.webp"/>
+<img loading="lazy" decoding="async" alt="Gomita Enchilada" class="gummy-img img-spicy" src="frutitas_enchiladas.webp"/>
+</div>
+<div class="item-info">
+<h3>Frutitas</h3>
+<span class="price">$40.00</span>
+</div>
+</div>
+</main>
+<footer class="club-footer">
+<p>The Sweet Lovers Club — donde cada gomita elige su bando.</p>
+</footer>
+</div>
+
+
+    <!-- ============================================
+         ADMINISTRACIÓN OCULTA
+         Se abre con DOBLE TOQUE / DOBLE CLIC en el logo del menú.
+         La contraseña NO se guarda aquí: Supabase Auth la valida.
+         ============================================ -->
+    <div class="admin-overlay" id="adminOverlay" aria-hidden="true">
+        <section class="admin-card" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+            <div class="admin-head">
+                <div class="admin-title-wrap">
+                    <h2 class="admin-title" id="adminTitle">Administración</h2>
+                    <p class="admin-subtitle" id="adminSubtitle">Disponibilidad del menú</p>
+                </div>
+                <button class="admin-close" id="adminClose" type="button" aria-label="Cerrar">×</button>
+            </div>
+
+            <div class="admin-body">
+                <form class="admin-login" id="adminLoginForm" autocomplete="off">
+                    <label class="admin-label" for="adminPassword">Contraseña</label>
+                    <input
+                        class="admin-password"
+                        id="adminPassword"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        inputmode="text"
+                        placeholder="Ingresa la contraseña"
+                        required>
+                    <p class="admin-message" id="adminMessage" role="status" aria-live="polite"></p>
+                    <button class="admin-primary" id="adminLoginBtn" type="submit">Ingresar</button>
+                </form>
+
+                <div class="admin-panel" id="adminPanel">
+                    <div class="admin-products" id="adminProducts"></div>
+                </div>
+            </div>
+
+            <div class="admin-footer" id="adminFooter">
+                <button class="admin-secondary" id="adminRefresh" type="button">Actualizar lista</button>
+                <button class="admin-secondary" id="adminLogout" type="button">Cerrar sesión</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- GIFS DEL PERSONAJE
+         Mantén estos 4 archivos en la misma carpeta del HTML:
+         personaje-saludo.gif       = portada/inicio
+         personaje-der-arriba.gif   = menú, esquina superior derecha
+         personaje-der-abajo.gif    = menú, esquina inferior derecha
+         personaje-izq-abajo.gif    = menú, esquina inferior izquierda
+
+         Los 3 GIF del menú usan data-src para NO cargarse durante la portada.
+         Se cargan únicamente cuando les toca aparecer y se descargan del <img>
+         al ocultarse para reducir trabajo de animación/decodificación.
+    -->
+<div aria-hidden="true" class="character-gif gif-right-top" id="gifRightTop">
+<img alt="" data-src="personaje-der-arriba.gif" decoding="async"/>
+</div>
+<div aria-hidden="true" class="character-gif gif-right-bottom" id="gifRightBottom">
+<img alt="" data-src="personaje-der-abajo.gif" decoding="async"/>
+</div>
+<div aria-hidden="true" class="character-gif gif-left-bottom" id="gifLeftBottom">
+<img alt="" data-src="personaje-izq-abajo.gif" decoding="async"/>
+</div>
+
+    <!-- Supabase JS v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        function toggleChile(contenedor) {
+    const seEnchilo = !contenedor.classList.contains('active');
+    contenedor.classList.toggle('active');
+
+    // Efecto sencillo: solo aparece al pasar de normal a enchilado.
+    if (seEnchilo && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        lanzarPolvitoChile(contenedor);
+    }
+}
+
+function lanzarPolvitoChile(contenedor) {
+    // Un poco más de partículas, manteniendo el efecto ligero y fluido.
+    const PARTICULAS = 20;
+    const fragmento = document.createDocumentFragment();
+
+    for (let i = 0; i < PARTICULAS; i++) {
+        const polvo = document.createElement('span');
+        polvo.className = 'chile-particle';
+
+        const xInicio = Math.round((Math.random() - 0.5) * 105);
+        const xFinal = xInicio + Math.round((Math.random() - 0.5) * 52);
+        const yFinal = Math.round(100 + Math.random() * 90);
+        const tamano = (2.5 + Math.random() * 4.5).toFixed(1);
+        const duracion = Math.round(720 + Math.random() * 520);
+        const retraso = Math.round(Math.random() * 170);
+
+        polvo.style.setProperty('--x0', `${xInicio}px`);
+        polvo.style.setProperty('--x1', `${xFinal}px`);
+        polvo.style.setProperty('--y1', `${yFinal}px`);
+        polvo.style.setProperty('--size', `${tamano}px`);
+        polvo.style.setProperty('--dur', `${duracion}ms`);
+        polvo.style.animationDelay = `${retraso}ms`;
+
+        polvo.addEventListener('animationend', () => polvo.remove(), { once: true });
+        fragmento.appendChild(polvo);
+    }
+
+    contenedor.appendChild(fragmento);
+}
+
+        // --- Apertura del telón ---
+        (function () {
+            const intro = document.getElementById('intro');
+            const content = document.getElementById('siteContent');
+            const enterBtn = document.getElementById('enterBtn');
+            const skipBtn = document.getElementById('skipBtn');
+            const body = document.body;
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            let opened = false;
+            function openClub() {
+                if (opened) return;
+                opened = true;
+
+                if (prefersReduced) {
+                    intro.remove();
+                    content.hidden = false;
+                    body.classList.remove('locked');
+                    window.dispatchEvent(new CustomEvent('sweetclub:opened'));
+                    return;
+                }
+
+                intro.classList.add('opening');
+                const curtainLeft = intro.querySelector('.curtain-left');
+                const finish = () => {
+                    intro.remove();
+                    content.hidden = false;
+                    body.classList.remove('locked');
+                    window.dispatchEvent(new CustomEvent('sweetclub:opened'));
+                };
+                curtainLeft.addEventListener('transitionend', finish, { once: true });
+                setTimeout(finish, 1700); // respaldo por si transitionend no dispara
+            }
+
+            enterBtn.addEventListener('click', openClub);
+            skipBtn.addEventListener('click', openClub);
+        })();
+
+        document.addEventListener('touchstart', function () {}, true);
+
+        // --- GIFs del menú: tiempos totalmente independientes ---
+        (function () {
+            const appearances = [
+                document.getElementById('gifRightTop'),
+                document.getElementById('gifRightBottom'),
+                document.getElementById('gifLeftBottom')
+            ].filter(Boolean);
+
+            if (!appearances.length) return;
+
+            const FIRST_DELAY = 5000;
+            const GAP_TIME = 6000;
+
+            /* ==========================================================
+               CONFIGURACIÓN INDIVIDUAL DE CADA GIF
+
+               duration = duración base antes de pasar al siguiente
+               start    = tiempo oculto al inicio
+               end      = tiempo oculto al final
+
+               REGLA ESPECIAL:
+               Si end = 0, NO se oculta al llegar a "duration".
+               Permanece visible durante GAP_TIME y solo desaparece
+               justo cuando va a comenzar el siguiente GIF.
+               ========================================================== */
+
+            const GIF_TIMINGS = {
+                gifRightTop: {
+                    duration: 10000,
+                    start: 0,
+                    end: 0
+                },
+
+                gifRightBottom: {
+                    duration: 10000,
+                    start: 1500,
+                    end: 0
+                },
+
+                gifLeftBottom: {
+                    duration: 10000,
+                    start: 850,
+                    end: 50
+                }
+            };
+
+            let running = false;
+            let index = 0;
+            let mainTimer = 0;
+            let revealTimer = 0;
+            let hideTimer = 0;
+            let currentVisible = null;
+
+            function clearGifTimers() {
+                clearTimeout(mainTimer);
+                clearTimeout(revealTimer);
+                clearTimeout(hideTimer);
+
+                mainTimer = 0;
+                revealTimer = 0;
+                hideTimer = 0;
+            }
+
+            function getTiming(el) {
+                const config = GIF_TIMINGS[el.id] || {
+                    duration: 10000,
+                    start: 0,
+                    end: 0
+                };
+
+                const duration = Math.max(250, Number(config.duration) || 10000);
+                const start = Math.max(0, Number(config.start) || 0);
+                const end = Math.max(0, Number(config.end) || 0);
+
+                return {
+                    duration,
+                    start: Math.min(start, Math.max(0, duration - 100)),
+                    end: Math.min(end, Math.max(0, duration - 100))
+                };
+            }
+
+            function isTrimmedGif(el) {
+                const t = getTiming(el);
+                return t.start > 0 || t.end > 0;
+            }
+
+            function unload(el) {
+                if (!el) return;
+
+                el.classList.remove('is-visible', 'is-trim-hidden');
+
+                const img = el.querySelector('img');
+                if (img) {
+                    img.removeAttribute('src');
+                }
+
+                if (currentVisible === el) {
+                    currentVisible = null;
+                }
+            }
+
+            function hideAllExcept(except = null) {
+                appearances.forEach(el => {
+                    if (el !== except) unload(el);
+                });
+            }
+
+            function scheduleNext(delay) {
+                clearTimeout(mainTimer);
+                mainTimer = window.setTimeout(playNext, delay);
+            }
+
+            async function prepareGif(el) {
+                const img = el.querySelector('img');
+                if (!img) return;
+
+                // Siempre reiniciamos el GIF desde el primer cuadro.
+                img.removeAttribute('src');
+
+                if (isTrimmedGif(el)) {
+                    el.classList.add('is-trim-hidden');
+                }
+
+                // Fuerza al navegador a registrar la eliminación antes de recargar.
+                void img.offsetWidth;
+
+                img.src = img.dataset.src;
+
+                try {
+                    await img.decode();
+                } catch (_) {
+                    // La carga normal del GIF es suficiente si decode() no está disponible.
+                }
+            }
+
+            async function playNext() {
+                if (!running || document.hidden) return;
+
+                clearGifTimers();
+
+                // El GIF anterior con end=0 se mantiene durante el GAP.
+                // Aquí sí se elimina, justo antes de iniciar el siguiente.
+                hideAllExcept(null);
+
+                const current = appearances[index];
+                const timing = getTiming(current);
+
+                await prepareGif(current);
+
+                if (!running || document.hidden) {
+                    unload(current);
+                    return;
+                }
+
+                currentVisible = current;
+
+                // Inicio individual.
+                if (timing.start > 0) {
+                    current.classList.add('is-trim-hidden');
+
+                    revealTimer = window.setTimeout(() => {
+                        if (!running || document.hidden) return;
+
+                        current.classList.remove('is-trim-hidden');
+                        current.classList.add('is-visible');
+                    }, timing.start);
+                } else {
+                    current.classList.remove('is-trim-hidden');
+                    current.classList.add('is-visible');
+                }
+
+                // Salida individual.
+                // MUY IMPORTANTE: si end === 0, NO EXISTE temporizador de corte.
+                if (timing.end > 0) {
+                    hideTimer = window.setTimeout(() => {
+                        current.classList.add('is-trim-hidden');
+                        current.classList.remove('is-visible');
+                    }, Math.max(timing.start, timing.duration - timing.end));
+                }
+
+                mainTimer = window.setTimeout(() => {
+                    const keepUntilNext = timing.end === 0;
+
+                    if (!keepUntilNext) {
+                        unload(current);
+                    }
+
+                    index = (index + 1) % appearances.length;
+
+                    // Si end=0, el GIF actual seguirá visible durante esta espera.
+                    scheduleNext(GAP_TIME);
+                }, timing.duration);
+            }
+
+            function startGifCycle() {
+                if (running) return;
+
+                running = true;
+                scheduleNext(FIRST_DELAY);
+            }
+
+            window.addEventListener(
+                'sweetclub:opened',
+                startGifCycle,
+                { once: true }
+            );
+
+            document.addEventListener('visibilitychange', () => {
+                clearGifTimers();
+
+                appearances.forEach(unload);
+
+                if (!document.hidden && running) {
+                    scheduleNext(GAP_TIME);
+                }
+            });
+        })();
+    </script>
+
+
+    <script>
+        /* ============================================
+           SUPABASE — DISPONIBILIDAD + ADMIN
+
+           Además de disponibilidad, el administrador controla:
+           - orden manual
+           - distintivo: ninguno / nuevo / temporada / importado
+           - presentación/modelo activo por producto
+
+           Los agotados SIEMPRE se muestran al final del menú.
+           ============================================ */
+        (function () {
+            'use strict';
+
+            const SUPABASE_URL = 'https://dxiesavzjkgekoxjoyry.supabase.co';
+            const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_8yDZ9g9aakywv2MxGDZLoA_GEHvMwmw';
+            const ADMIN_EMAIL = 'admin@thesweetloversclub.com';
+            const REFRESH_MS = 30000;
+
+            const BADGE_ASSETS = {
+                nuevo: 'new.webp',
+                temporada: 'temporada.webp',
+                importado: 'producto-importado.webp'
+            };
+
+            const configured =
+                SUPABASE_URL.startsWith('https://') &&
+                SUPABASE_PUBLISHABLE_KEY.length > 20 &&
+                ADMIN_EMAIL.includes('@');
+
+            const client = (configured && window.supabase)
+                ? window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_PUBLISHABLE_KEY,
+                    {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: false
+                        }
+                    }
+                )
+                : null;
+
+            const overlay = document.getElementById('adminOverlay');
+            const trigger = document.getElementById('adminTrigger');
+            const closeBtn = document.getElementById('adminClose');
+            const loginForm = document.getElementById('adminLoginForm');
+            const passwordInput = document.getElementById('adminPassword');
+            const loginBtn = document.getElementById('adminLoginBtn');
+            const message = document.getElementById('adminMessage');
+            const panel = document.getElementById('adminPanel');
+            const productsBox = document.getElementById('adminProducts');
+            const footer = document.getElementById('adminFooter');
+            const logoutBtn = document.getElementById('adminLogout');
+            const refreshBtn = document.getElementById('adminRefresh');
+
+            let availabilityTimer = null;
+            let lastTap = 0;
+            let closing = false;
+            let adminProductsCache = [];
+            let variantsCache = [];
+
+            function setMessage(text = '', type = '') {
+                if (!message) return;
+                message.textContent = text;
+                message.className = 'admin-message';
+                if (text) message.classList.add('show');
+                if (type) message.classList.add(type);
+            }
+
+            function setAdminView(loggedIn) {
+                if (!loginForm || !panel || !footer) return;
+                loginForm.style.display = loggedIn ? 'none' : 'grid';
+                panel.classList.toggle('is-active', loggedIn);
+                footer.classList.toggle('is-active', loggedIn);
+            }
+
+            function openAdmin() {
+                if (!overlay) return;
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('admin-open');
+                setMessage('');
+
+                if (!configured || !client) {
+                    setAdminView(false);
+                    setMessage('Falta configurar Supabase en el HTML.', 'error');
+                    return;
+                }
+
+                client.auth.getSession().then(({ data }) => {
+                    const loggedIn = Boolean(data?.session);
+                    setAdminView(loggedIn);
+                    if (loggedIn) {
+                        loadAdminProducts();
+                    } else {
+                        setTimeout(() => passwordInput?.focus(), 80);
+                    }
+                });
+            }
+
+            async function closeAdmin({ signOut = false } = {}) {
+                if (!overlay || closing) return;
+                closing = true;
+
+                if (signOut && client) {
+                    try { await client.auth.signOut(); } catch (_) {}
+                }
+
+                overlay.classList.remove('is-open');
+                overlay.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('admin-open');
+                if (passwordInput) passwordInput.value = '';
+                setMessage('');
+                setAdminView(false);
+                closing = false;
+            }
+
+            function sortProducts(products) {
+                return [...products].sort((a, b) => {
+                    // Disponibles primero; agotados siempre hasta abajo.
+                    const availabilityDiff =
+                        Number(Boolean(b.disponible)) - Number(Boolean(a.disponible));
+
+                    if (availabilityDiff !== 0) return availabilityDiff;
+
+                    const orderA = Number.isFinite(Number(a.orden)) ? Number(a.orden) : 9999;
+                    const orderB = Number.isFinite(Number(b.orden)) ? Number(b.orden) : 9999;
+
+                    if (orderA !== orderB) return orderA - orderB;
+                    return String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es');
+                });
+            }
+
+            function getVariantsMap(variants) {
+                const map = new Map();
+
+                for (const variant of variants || []) {
+                    if (!map.has(variant.producto_id)) {
+                        map.set(variant.producto_id, []);
+                    }
+                    map.get(variant.producto_id).push(variant);
+                }
+
+                for (const list of map.values()) {
+                    list.sort((a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0));
+                }
+
+                return map;
+            }
+
+            function applyBadge(item, etiqueta) {
+                const imageContainer = item?.querySelector('.image-container');
+                if (!imageContainer) return;
+
+                let badge = imageContainer.querySelector('.badge-nuevo');
+                const asset = BADGE_ASSETS[etiqueta] || null;
+
+                if (!asset) {
+                    if (badge) badge.remove();
+                    return;
+                }
+
+                if (!badge) {
+                    badge = document.createElement('img');
+                    badge.className = 'badge-nuevo';
+                    badge.alt = '';
+                    imageContainer.prepend(badge);
+                }
+
+                badge.src = asset;
+                badge.alt =
+                    etiqueta === 'nuevo' ? 'Etiqueta Nuevo' :
+                    etiqueta === 'temporada' ? 'Etiqueta Temporada' :
+                    'Etiqueta Importado';
+            }
+
+            function applyActiveVariant(item, product, variantsMap) {
+                if (!item) return;
+
+                const variants = variantsMap.get(product.id) || [];
+                if (!variants.length) return;
+
+                const selected =
+                    variants.find(v => v.codigo === product.variante_activa) ||
+                    variants[0];
+
+                if (!selected) return;
+
+                const normal = item.querySelector('.img-normal');
+                const spicy = item.querySelector('.img-spicy');
+
+                if (normal && selected.imagen_normal) {
+                    normal.src = selected.imagen_normal;
+                }
+
+                if (spicy && selected.imagen_enchilada) {
+                    spicy.src = selected.imagen_enchilada;
+                }
+            }
+
+            function applyMenuState(products, variants) {
+                const grid = document.querySelector('.menu-grid');
+                if (!grid) return;
+
+                const variantsMap = getVariantsMap(variants);
+                const sorted = sortProducts(products);
+
+                for (const product of sorted) {
+                    const item = document.querySelector(
+                        `.menu-item[data-product-id="${CSS.escape(product.id)}"]`
+                    );
+
+                    if (!item) continue;
+
+                    item.classList.toggle('agotado', product.disponible === false);
+                    applyBadge(item, product.etiqueta || 'ninguna');
+                    applyActiveVariant(item, product, variantsMap);
+
+                    // appendChild mueve el nodo existente; no recrea la tarjeta.
+                    // Así no se altera ningún otro comportamiento visual.
+                    grid.appendChild(item);
+                }
+            }
+
+            async function loadAvailability() {
+                if (!client) return;
+
+                const productsResult = await client
+                    .from('productos')
+                    .select('id,nombre,disponible,orden,etiqueta,variante_activa');
+
+                if (productsResult.error || !Array.isArray(productsResult.data)) {
+                    if (productsResult.error) {
+                        console.warn('Supabase menú:', productsResult.error.message);
+                    }
+                    return;
+                }
+
+                const variantsResult = await client
+                    .from('producto_variantes')
+                    .select('producto_id,codigo,nombre,imagen_normal,imagen_enchilada,orden')
+                    .order('orden', { ascending: true });
+
+                const variants =
+                    (!variantsResult.error && Array.isArray(variantsResult.data))
+                        ? variantsResult.data
+                        : [];
+
+                if (variantsResult.error) {
+                    console.warn('Supabase variantes:', variantsResult.error.message);
+                }
+
+                applyMenuState(productsResult.data, variants);
+            }
+
+            function startAvailabilityPolling() {
+                if (!client || availabilityTimer) return;
+                loadAvailability();
+                availabilityTimer = window.setInterval(() => {
+                    if (!document.hidden) loadAvailability();
+                }, REFRESH_MS);
+            }
+
+            async function loginAdmin(password) {
+                if (!client) return false;
+
+                const { data, error } = await client.auth.signInWithPassword({
+                    email: ADMIN_EMAIL,
+                    password
+                });
+
+                if (error) throw error;
+                return Boolean(data?.session);
+            }
+
+            async function loadAdminProducts() {
+                if (!client || !productsBox) return;
+
+                productsBox.innerHTML = '<p class="admin-subtitle">Cargando productos…</p>';
+
+                const [productsResult, variantsResult] = await Promise.all([
+                    client
+                        .from('productos')
+                        .select('id,nombre,disponible,orden,etiqueta,variante_activa'),
+                    client
+                        .from('producto_variantes')
+                        .select('producto_id,codigo,nombre,imagen_normal,imagen_enchilada,orden')
+                        .order('orden', { ascending: true })
+                ]);
+
+                if (productsResult.error) {
+                    productsBox.innerHTML = '';
+                    setMessage(
+                        'No fue posible cargar los productos. Ejecuta primero el SQL de configuración.',
+                        'error'
+                    );
+                    return;
+                }
+
+                if (variantsResult.error) {
+                    productsBox.innerHTML = '';
+                    setMessage(
+                        'No fue posible cargar las presentaciones/modelos. Revisa la tabla producto_variantes.',
+                        'error'
+                    );
+                    return;
+                }
+
+                adminProductsCache = sortProducts(productsResult.data || []);
+                variantsCache = variantsResult.data || [];
+
+                const variantsMap = getVariantsMap(variantsCache);
+
+                productsBox.innerHTML = '';
+
+                for (let i = 0; i < adminProductsCache.length; i++) {
+                    const product = adminProductsCache[i];
+                    const row = document.createElement('div');
+                    row.className = 'admin-product';
+                    row.dataset.id = product.id;
+
+                    const top = document.createElement('div');
+                    top.className = 'admin-product-top';
+
+                    const name = document.createElement('div');
+                    name.className = 'admin-product-name';
+                    name.textContent = product.nombre;
+
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `stock-toggle ${product.disponible ? 'available' : 'soldout'}`;
+                    button.dataset.id = product.id;
+                    button.dataset.available = String(Boolean(product.disponible));
+                    renderStockButton(button, Boolean(product.disponible));
+                    button.addEventListener('click', () => toggleProduct(button));
+
+                    top.append(name, button);
+
+                    const controls = document.createElement('div');
+                    controls.className = 'admin-product-controls';
+
+                    // ORDEN
+                    const orderWrap = document.createElement('div');
+                    orderWrap.className = 'admin-order-controls';
+
+                    const up = document.createElement('button');
+                    up.type = 'button';
+                    up.className = 'admin-order-btn';
+                    up.textContent = '↑';
+                    up.title = 'Subir en el orden';
+                    up.setAttribute('aria-label', `Subir ${product.nombre}`);
+                    up.addEventListener('click', () => moveProduct(product.id, -1));
+
+                    const down = document.createElement('button');
+                    down.type = 'button';
+                    down.className = 'admin-order-btn';
+                    down.textContent = '↓';
+                    down.title = 'Bajar en el orden';
+                    down.setAttribute('aria-label', `Bajar ${product.nombre}`);
+                    down.addEventListener('click', () => moveProduct(product.id, 1));
+
+                    // No permite cruzar manualmente entre "disponible" y "agotado";
+                    // esa separación la maneja automáticamente el menú.
+                    const sameGroup = adminProductsCache.filter(
+                        p => Boolean(p.disponible) === Boolean(product.disponible)
+                    );
+                    const groupIndex = sameGroup.findIndex(p => p.id === product.id);
+                    up.disabled = groupIndex <= 0;
+                    down.disabled = groupIndex < 0 || groupIndex >= sameGroup.length - 1;
+
+                    orderWrap.append(up, down);
+
+                    // ETIQUETA
+                    const badgeGroup = document.createElement('div');
+                    badgeGroup.className = 'admin-control-group';
+
+                    const badgeCaption = document.createElement('span');
+                    badgeCaption.className = 'admin-control-caption';
+                    badgeCaption.textContent = 'Distintivo';
+
+                    const badgeSelect = document.createElement('select');
+                    badgeSelect.className = 'admin-select';
+                    badgeSelect.setAttribute('aria-label', `Distintivo de ${product.nombre}`);
+
+                    const badgeOptions = [
+                        ['ninguna', 'Sin distintivo'],
+                        ['nuevo', 'Nuevo'],
+                        ['temporada', 'Temporada'],
+                        ['importado', 'Importado']
+                    ];
+
+                    for (const [value, label] of badgeOptions) {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = label;
+                        badgeSelect.appendChild(option);
+                    }
+
+                    badgeSelect.value = product.etiqueta || 'ninguna';
+                    badgeSelect.addEventListener('change', () => {
+                        saveProductSettings(
+                            product.id,
+                            { etiqueta: badgeSelect.value },
+                            'Distintivo actualizado.'
+                        );
+                    });
+
+                    badgeGroup.append(badgeCaption, badgeSelect);
+
+                    // PRESENTACIÓN / MODELO
+                    const variantGroup = document.createElement('div');
+                    variantGroup.className = 'admin-control-group admin-variant-group';
+
+                    const variantCaption = document.createElement('span');
+                    variantCaption.className = 'admin-control-caption';
+                    variantCaption.textContent = 'Presentación';
+
+                    const variantSelect = document.createElement('select');
+                    variantSelect.className = 'admin-select';
+                    variantSelect.setAttribute('aria-label', `Presentación de ${product.nombre}`);
+
+                    const productVariants = variantsMap.get(product.id) || [];
+
+                    if (!productVariants.length) {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Sin modelos';
+                        variantSelect.appendChild(option);
+                        variantSelect.disabled = true;
+                    } else {
+                        for (const variant of productVariants) {
+                            const option = document.createElement('option');
+                            option.value = variant.codigo;
+                            option.textContent = variant.nombre;
+                            variantSelect.appendChild(option);
+                        }
+
+                        const activeCode =
+                            productVariants.some(v => v.codigo === product.variante_activa)
+                                ? product.variante_activa
+                                : productVariants[0].codigo;
+
+                        variantSelect.value = activeCode;
+                        variantSelect.disabled = productVariants.length <= 1;
+
+                        variantSelect.addEventListener('change', () => {
+                            saveProductSettings(
+                                product.id,
+                                { variante_activa: variantSelect.value },
+                                'Presentación actualizada.'
+                            );
+                        });
+                    }
+
+                    variantGroup.append(variantCaption, variantSelect);
+
+                    controls.append(orderWrap, badgeGroup, variantGroup);
+                    row.append(top, controls);
+                    productsBox.appendChild(row);
+                }
+            }
+
+            function renderStockButton(button, available) {
+                button.classList.toggle('available', available);
+                button.classList.toggle('soldout', !available);
+                button.dataset.available = String(available);
+                button.innerHTML =
+                    `<span class="stock-dot" aria-hidden="true"></span>${available ? 'Disponible' : 'Agotado'}`;
+                button.setAttribute(
+                    'aria-label',
+                    `${available ? 'Marcar como agotado' : 'Marcar como disponible'}`
+                );
+            }
+
+            async function saveProductSettings(id, patch, successText = 'Cambio guardado.') {
+                if (!client) return false;
+
+                const { error } = await client
+                    .from('productos')
+                    .update({
+                        ...patch,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', id);
+
+                if (error) {
+                    setMessage('No se pudo guardar el cambio. Revisa permisos/RLS.', 'error');
+                    await loadAdminProducts();
+                    return false;
+                }
+
+                setMessage(successText, 'ok');
+                await loadAvailability();
+                return true;
+            }
+
+            async function toggleProduct(button) {
+                if (!client || button.classList.contains('is-saving')) return;
+
+                const id = button.dataset.id;
+                const previous = button.dataset.available === 'true';
+                const next = !previous;
+
+                button.classList.add('is-saving');
+                button.disabled = true;
+                renderStockButton(button, next);
+
+                const ok = await saveProductSettings(
+                    id,
+                    { disponible: next },
+                    next ? 'Producto disponible.' : 'Producto enviado al final como agotado.'
+                );
+
+                button.classList.remove('is-saving');
+                button.disabled = false;
+
+                if (!ok) {
+                    renderStockButton(button, previous);
+                    return;
+                }
+
+                // Refresca el panel para que el agotado también se mueva al final ahí.
+                await loadAdminProducts();
+            }
+
+            async function moveProduct(id, direction) {
+                if (!client) return;
+
+                const sorted = sortProducts(adminProductsCache);
+                const currentIndex = sorted.findIndex(p => p.id === id);
+                if (currentIndex < 0) return;
+
+                const current = sorted[currentIndex];
+
+                // El orden se cambia únicamente dentro del mismo grupo de disponibilidad.
+                const sameGroup = sorted.filter(
+                    p => Boolean(p.disponible) === Boolean(current.disponible)
+                );
+                const groupIndex = sameGroup.findIndex(p => p.id === id);
+                const target = sameGroup[groupIndex + direction];
+
+                if (!target) return;
+
+                const currentOrder = Number(current.orden) || (currentIndex + 1);
+                const targetOrder = Number(target.orden) || (currentIndex + 1 + direction);
+
+                setMessage('Guardando orden…');
+
+                const first = await client
+                    .from('productos')
+                    .update({
+                        orden: targetOrder,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', current.id);
+
+                if (first.error) {
+                    setMessage('No se pudo cambiar el orden.', 'error');
+                    return;
+                }
+
+                const second = await client
+                    .from('productos')
+                    .update({
+                        orden: currentOrder,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', target.id);
+
+                if (second.error) {
+                    // Intenta revertir el primer cambio para no dejar el orden inconsistente.
+                    await client
+                        .from('productos')
+                        .update({ orden: currentOrder })
+                        .eq('id', current.id);
+
+                    setMessage('No se pudo completar el cambio de orden.', 'error');
+                    return;
+                }
+
+                setMessage('Orden actualizado.', 'ok');
+                await loadAvailability();
+                await loadAdminProducts();
+            }
+
+            /* Acceso oculto: doble toque/clic rápido en el logo del MENÚ */
+            if (trigger) {
+                trigger.addEventListener('pointerup', (event) => {
+                    if (!document.getElementById('siteContent') ||
+                        document.getElementById('siteContent').hidden) return;
+
+                    const now = Date.now();
+                    if (now - lastTap <= 650) {
+                        lastTap = 0;
+                        event.preventDefault();
+                        openAdmin();
+                    } else {
+                        lastTap = now;
+                    }
+                });
+            }
+
+            loginForm?.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (!configured || !client) {
+                    setMessage('Falta configurar Supabase en el HTML.', 'error');
+                    return;
+                }
+
+                const password = passwordInput?.value || '';
+                if (!password) return;
+
+                loginBtn.disabled = true;
+                setMessage('Validando…');
+
+                try {
+                    const ok = await loginAdmin(password);
+                    if (!ok) throw new Error('No session');
+
+                    if (passwordInput) passwordInput.value = '';
+                    setMessage('');
+                    setAdminView(true);
+                    await loadAdminProducts();
+                } catch (error) {
+                    console.warn('Admin login:', error?.message || error);
+                    setMessage('Contraseña incorrecta o acceso no autorizado.', 'error');
+                } finally {
+                    loginBtn.disabled = false;
+                }
+            });
+
+            closeBtn?.addEventListener('click', () => closeAdmin({ signOut: true }));
+            logoutBtn?.addEventListener('click', () => closeAdmin({ signOut: true }));
+
+            refreshBtn?.addEventListener('click', async () => {
+                refreshBtn.disabled = true;
+                await loadAdminProducts();
+                await loadAvailability();
+                refreshBtn.disabled = false;
+            });
+
+            overlay?.addEventListener('click', (event) => {
+                if (event.target === overlay) closeAdmin({ signOut: true });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && overlay?.classList.contains('is-open')) {
+                    closeAdmin({ signOut: true });
+                }
+            });
+
+            window.addEventListener('sweetclub:opened', startAvailabilityPolling, { once: true });
+
+            if (!document.getElementById('intro')) {
+                startAvailabilityPolling();
+            }
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && client) loadAvailability();
+            });
+        })();
+</script>
+
+</body>
+</html>
