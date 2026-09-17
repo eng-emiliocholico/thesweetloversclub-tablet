@@ -1168,6 +1168,7 @@
             backdrop-filter: none !important;
         }
         html.low-memory .chile-particle { display: none !important; }
+        html.low-memory #intro { display: none !important; }
 
     </style>
 </head>
@@ -1651,6 +1652,17 @@ function lanzarPolvitoChile(contenedor) {
 
             if (mascot && !window.SWEETCLUB_LITE_MODE && mascot.dataset.animatedSrc) {
                 mascot.src = mascot.dataset.animatedSrc;
+            }
+
+            // En dispositivos con poca RAM omitimos por completo la pantalla de entrada.
+            // Esto evita que el usuario dependa del botón "Entrar al club" y reduce
+            // el trabajo inicial de renderizado en tablets antiguas.
+            if (window.SWEETCLUB_LITE_MODE) {
+                intro?.remove();
+                content.hidden = false;
+                body.classList.remove('locked');
+                window.dispatchEvent(new CustomEvent('sweetclub:opened'));
+                return;
             }
 
             let opened = false;
